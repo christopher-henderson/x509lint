@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
 	unsigned char *buffer;
 	size_t buflen;
 
-	if (argc != 2 || argc != 3)
+	if (argc != 2 && argc != 3)
 	{
 		printf(usage);
 		exit(1);
