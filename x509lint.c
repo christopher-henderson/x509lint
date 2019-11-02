@@ -107,7 +107,7 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
-	CertType type = GetTypeOrDie(arc, argv);
+	CertType type = GetType(argc, argv);
 
 	if (LoadCert(argv[1], &buffer, &buflen) != 0)
 	{
@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
 
 	check_init();
 	
-	check(buffer, buflen, PEM, SubscriberCertificate);
+	check(buffer, buflen, PEM, type);
 
 	char *m = get_messages();
 	printf("%s", m);
