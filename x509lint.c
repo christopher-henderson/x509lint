@@ -22,8 +22,11 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "checks.h"
 #include "messages.h"
+
+static const char *usage = "Usage: x509lint file [subscriber|intermediate|ca](default subscriber)\n";
 
 static int LoadCert(const char *filename, unsigned char **buffer, size_t *buflen)
 {
@@ -64,17 +67,47 @@ static int LoadCert(const char *filename, unsigned char **buffer, size_t *buflen
 	return 0;
 }
 
+static CertType GetType(int argc, char *argv[]) {
+	if (argc < 3) 
+	{
+		// By default, if no argument is given for
+		// cert type then default to a subscriber type.
+		return SubscriberCertificate;
+	}
+	char *type = argv[2];
+	if (strcmp(type, "subscriber") == 0) 
+	{
+		return SubscriberCertificate;
+	} 
+	else if (strcmp(type, "intermediate") == 0) 
+	{
+		return IntermediateCA;
+	} 
+	else if (strcmp(type, "ca") == 0) 
+	{
+		return RootCA;
+	} 
+	else 
+	{
+		printf("%s is not a valid certificate type\n", type);
+		printf(usage);
+		exit(1);
+	}
+}
+
 
 int main(int argc, char *argv[])
 {
 	unsigned char *buffer;
 	size_t buflen;
 
-	if (argc != 2)
+	if (argc != 2 && argc != 3)
 	{
-		printf("Usage: x509lint file\n");
+		printf(usage);
 		exit(1);
 	}
+
+	CertType type = GetType(argc, argv);
 
 	if (LoadCert(argv[1], &buffer, &buflen) != 0)
 	{
@@ -84,7 +117,7 @@ int main(int argc, char *argv[])
 
 	check_init();
 	
-	check(buffer, buflen, PEM, SubscriberCertificate);
+	check(buffer, buflen, PEM, type);
 
 	char *m = get_messages();
 	printf("%s", m);
